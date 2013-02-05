@@ -1,0 +1,30 @@
+#!/usr/bin/env node
+
+var package_json = require('./package.json'),
+	spawn = require('child_process').spawn,
+	_ = require('underscore');
+
+var command = process.argv[2] || 'status';
+
+var linkedDependencies = [];
+_.each(package_json.dependencies, function (val, key) {
+	if (val.indexOf('git') > -1) {
+		linkedDependencies.push(key);
+	}
+});
+
+function spawnGitProcess (workingDir, command) {
+	var git = spawn('git', [command], { cwd: workingDir });
+	git.stdout.on('data', function (data) {
+		console.log('git ' + command + ' in ' + workingDir);
+		console.log('' + data);
+	});
+	git.stderr.on('data', function (data) {
+		console.log('error: ' + data);
+	});
+}
+
+_.each(linkedDependencies, function (dep) {
+	spawnGitProcess('../' + dep, command);
+});
+spawnGitProcess(process.cwd(), command);
