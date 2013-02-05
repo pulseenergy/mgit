@@ -1,0 +1,16 @@
+{
+  "name": "mgit",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": "0.8.x"
+  },
+  "keywords": ["git"],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pulseenergy/mgit.git"
+  },
+  "bin": {
+    "mgit": "./bin/mgit"
+  },
+}
