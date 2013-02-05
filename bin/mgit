@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var package_json = require('./package.json'),
+var package_json = require(process.cwd() + '/package.json'),
 	spawn = require('child_process').spawn,
 	_ = require('underscore');
 
