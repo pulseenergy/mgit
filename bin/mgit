@@ -4,8 +4,9 @@ var package_json = require(process.cwd() + '/package.json'),
 	spawn = require('child_process').spawn,
 	_ = require('underscore');
 
-var command = process.argv[2] || 'status';
+var args = process.argv.length > 2 ? _.rest(process.argv, 2) : [ 'status' ];
 
+console.log(args);
 var linkedDependencies = [];
 _.each(package_json.dependencies, function (val, key) {
 	if (val.indexOf('git') > -1) {
@@ -13,10 +14,10 @@ _.each(package_json.dependencies, function (val, key) {
 	}
 });
 
-function spawnGitProcess (workingDir, command) {
-	var git = spawn('git', [command], { cwd: workingDir });
+function spawnGitProcess (workingDir, args) {
+	var git = spawn('git', args, { cwd: workingDir });
 	git.stdout.on('data', function (data) {
-		console.log('git ' + command + ' in ' + workingDir);
+		console.log('git ' + args + ' in ' + workingDir);
 		console.log('' + data);
 	});
 	git.stderr.on('data', function (data) {
@@ -25,6 +26,6 @@ function spawnGitProcess (workingDir, command) {
 }
 
 _.each(linkedDependencies, function (dep) {
-	spawnGitProcess('../' + dep, command);
+	spawnGitProcess('../' + dep, args);
 });
-spawnGitProcess(process.cwd(), command);
+spawnGitProcess(process.cwd(), args);
