@@ -2,29 +2,29 @@
 
 var package_json = require(process.cwd() + '/package.json'),
 	spawn = require('child_process').spawn,
-	_ = require('underscore');
+	path = require('path');
 
-var args = process.argv.length > 2 ? _.rest(process.argv, 2) : [ 'status' ];
+var command = path.basename(process.argv[1]).substr(1); // '/usr/local/bin/mgit' -> 'git'
+var args = process.argv.length > 2 ? process.argv.slice(2) : 'git' === command ? [ 'status' ] : [];
 
 var linkedDependencies = [];
-_.each(package_json.dependencies, function (val, key) {
-	if (val.indexOf('git') > -1) {
+for (var key in package_json.dependencies) {
+	if (package_json.dependencies[key].indexOf('git') > -1) {
 		linkedDependencies.push(key);
 	}
-});
+}
 
-function spawnGitProcess (workingDir, args) {
-	var git = spawn('git', args, { cwd: workingDir });
+function spawnGitProcess (name, workingDir, args) {
+	var git = spawn(command, args, { cwd: workingDir });
 	git.stdout.on('data', function (data) {
-		console.log('git ' + args + ' in ' + workingDir);
-		console.log('' + data);
+		process.stdout.write('[' + name + '] ' + data + '\n');
 	});
 	git.stderr.on('data', function (data) {
-		console.log('error: ' + data);
+		process.stderr.write('[' + name + '] ' + data + '\n');
 	});
 }
 
-_.each(linkedDependencies, function (dep) {
-	spawnGitProcess('../' + dep, args);
+linkedDependencies.forEach(function (dep) {
+	spawnGitProcess(dep, '../' + dep, args);
 });
-spawnGitProcess(process.cwd(), args);
+spawnGitProcess(package_json.name, process.cwd(), args);
