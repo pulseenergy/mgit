@@ -14,13 +14,24 @@ for (var key in package_json.dependencies) {
 	}
 }
 
+var lastHeader = null;
+function outputHeader (header, out) {
+	if (header != lastHeader) {
+		out.write('\n' + header + '\n');
+	}
+	lastHeader = header;
+}
+
 function spawnGitProcess (name, workingDir, args) {
 	var git = spawn(command, args, { cwd: workingDir });
+	var header = '>>> [' + name + '] ' + command + ' ' + args.join(' ')
 	git.stdout.on('data', function (data) {
-		process.stdout.write('[' + name + '] ' + data + '\n');
+		outputHeader(header, process.stdout);
+		process.stdout.write(data);
 	});
 	git.stderr.on('data', function (data) {
-		process.stderr.write('[' + name + '] ' + data + '\n');
+		outputHeader(header, process.stderr);
+		process.stderr.write(data);
 	});
 }
 
